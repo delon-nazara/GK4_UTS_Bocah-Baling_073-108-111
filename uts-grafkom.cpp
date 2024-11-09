@@ -2,8 +2,9 @@
 
 const int width = 640;
 const int height = 480;
-float theta = 0.0f;
+float theta = 0.0f, speed = 0.0f;
 float translateX = -100.0f;
+float xMove = 0.0f, yMove = 0.0f;
 
 void drawCloud(float x, float y) {
     glColor3f(1.0, 1.0, 1.0); // Warna putih
@@ -38,49 +39,11 @@ void drawCloud(float x, float y) {
     glEnd();
 }
 
-void display() {
-    glClear(GL_COLOR_BUFFER_BIT);
+void character() {
 
-    // Background
-    // Langit (bagian atas layar)
-    glColor3f(0.6, 0.9, 1.0); // Warna biru muda untuk langit
-    glBegin(GL_QUADS);
-    glVertex2f(-100, 0);
-    glVertex2f(100, 0);
-    glVertex2f(100, 100);
-    glVertex2f(-100, 100);
-    glEnd();
-
-
-    //Awan animasi
+    // memindahkan koordinat karakter
     glPushMatrix();
-    glTranslatef(translateX, 0, 0); // Pindahkan awan ke kanan secara bertahap
-
-    // Gambar awan
-    drawCloud(-170, 70);
-    drawCloud(-100, 60);
-    drawCloud(-40, 40);
-    drawCloud(20, 70);
-    drawCloud(-80, 60);
-    drawCloud(60, 50);
-    drawCloud(90, 50);
-    drawCloud(145, 70);
-
-    translateX += 0.005;
-    glPopMatrix();
-
-    if (translateX > 100) {
-        translateX = -100.0f; // Reset posisi ke kiri
-    }
-
-    // Pasir (bagian bawah layar)
-    glColor3f(0.85, 0.65, 0.4); // Warna krem untuk pasir
-    glBegin(GL_QUADS);
-    glVertex2f(-100, -100);
-    glVertex2f(100, -100);
-    glVertex2f(100, 0);
-    glVertex2f(-100, 0);
-    glEnd();
+    glTranslatef(xMove, yMove, 0); // Terapkan translasi posisi karakter
 
     // Kepala
     glColor3f(1.0, 0.8, 0.6); // Warna kulit (peach)
@@ -211,12 +174,99 @@ void display() {
         glEnd();
     }
 
-    theta += 0.15;  //BAGUSNYA SIH KALO BELOM JALAN, PERTAMBAHAN THETA NYA 0, TP KALO JALAN, BISA DIBUAT SEKIAN
+    theta += speed;  //BAGUSNYA SIH KALO BELOM JALAN, PERTAMBAHAN THETA NYA 0, TP KALO JALAN, BISA DIBUAT SEKIAN 
+}
+
+void keyboard(unsigned char key, int x, int y)
+{
+
+    switch (key) {
+    case 'D':
+    case 'd':
+        if (xMove + 10 <= 45) //tambah batas pergerakan
+            xMove += 10;
+        break;
+    case 'A':
+    case 'a':
+        if (xMove - 10 >= -80)
+            xMove -= 10;
+        break;
+    case 'W':
+    case 'w':
+        if (yMove + 10 <= 39.9)
+            yMove += 10;
+        break;
+    case 'S':
+    case 's':
+        if (yMove - 10 >= -40)
+            yMove -= 10;
+        break;
+    case 'Q':
+    case 'q':
+        speed += 0.05f;
+        break;
+    case 'E':
+    case 'e':
+        speed -= 0.05f;
+        break;
+    }
+    glutPostRedisplay();
+
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Background
+    // Langit (bagian atas layar)
+    glColor3f(0.6, 0.9, 1.0); // Warna biru muda untuk langit
+    glBegin(GL_QUADS);
+    glVertex2f(-100, 0);
+    glVertex2f(100, 0);
+    glVertex2f(100, 100);
+    glVertex2f(-100, 100);
+    glEnd();
+
+
+    //Awan animasi
+    glPushMatrix();
+    glTranslatef(translateX, 0, 0); // Pindahkan awan ke kanan secara bertahap
+
+    // Gambar awan
+    drawCloud(-170, 70);
+    drawCloud(-100, 60);
+    drawCloud(-40, 40);
+    drawCloud(20, 70);
+    drawCloud(-80, 60);
+    drawCloud(60, 50);
+    drawCloud(90, 50);
+    drawCloud(145, 70);
+
+    translateX += 0.005;
+    glPopMatrix();
+
+    if (translateX > 100) {
+        translateX = -100.0f; // Reset posisi ke kiri
+    }
+
+    // Pasir (bagian bawah layar)
+    glColor3f(0.85, 0.65, 0.4); // Warna krem untuk pasir
+    glBegin(GL_QUADS);
+    glVertex2f(-100, -100);
+    glVertex2f(100, -100);
+    glVertex2f(100, 0);
+    glVertex2f(-100, 0);
+    glEnd();
+
+    //Karakter lengkap dengan kincirnya
+    character();
+
     glPopMatrix();
 
     glutPostRedisplay();
 
     glFlush();
+    
 }
 
 void init() {
@@ -234,6 +284,7 @@ int main(int argc, char** argv) {
     glutCreateWindow("Karakter Sederhana");
 
     init();
+    glutKeyboardFunc(keyboard);
     glutDisplayFunc(display);
     glutMainLoop();
     return 0;
